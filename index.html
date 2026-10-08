@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>তুমি কত খেয়েছ বাংলাদেশ?</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;700&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#1F4D36;--bg2:#17402C;--plate:#FFFDF6;--ink:#1B1B18;--mute:#5E6B60;--gold:#F4B41A;--chili:#C8321F;--line:#E4DFCB;--on-bg:#FFF8E1}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F2A1D;--bg2:#0A2016;--plate:#1A2A21;--ink:#F4F0E0;--mute:#A5B3A8;--line:#2D4136}}
+:root[data-theme="dark"]{--bg:#0F2A1D;--bg2:#0A2016;--plate:#1A2A21;--ink:#F4F0E0;--mute:#A5B3A8;--line:#2D4136}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--on-bg);font-family:"Hind Siliguri","Noto Sans Bengali","Kalpurush",system-ui,sans-serif;line-height:1.55}
+main{max-width:860px;margin:0 auto;padding:28px 16px 48px}
+h1{font-size:clamp(2rem,7vw,3.4rem);line-height:1.15;margin:0 0 10px;font-weight:700}
+.sub{margin:0 0 22px;max-width:46ch;opacity:.9;font-size:1.05rem}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg2);border-radius:14px;padding:12px 16px;margin-bottom:18px;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.bar-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-weight:700}
+.pct{font-size:1.6rem;color:var(--gold)}
+.track{height:10px;border-radius:99px;background:rgba(255,255,255,.15);margin-top:8px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--gold);transition:width .3s}
+.grid{display:grid;grid-template-columns:1fr;gap:10px;padding:0;margin:0;list-style:none}
+@media(min-width:620px){.grid{grid-template-columns:1fr 1fr}}
+.item{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:12px;background:var(--plate);color:var(--ink);cursor:pointer;border:2px solid transparent;transition:background .15s,transform .1s}
+.item:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.item:active{transform:scale(.98)}
+.dot{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:1rem;font-weight:700;color:transparent}
+.item[aria-pressed="true"]{background:var(--gold);color:#1B1B18;border-color:#1B1B18}
+.item[aria-pressed="true"] .dot{background:var(--chili);border-color:var(--chili);color:#fff;transform:rotate(-12deg)}
+.food{font-weight:500;display:block}
+.place{font-size:.85rem;color:var(--mute);display:block}
+.item[aria-pressed="true"] .place{color:#3A3410}
+.result{margin-top:30px;background:var(--plate);color:var(--ink);border-radius:18px;padding:22px 20px;border:3px solid var(--gold)}
+.result h2{margin:0 0 4px;font-size:1.1rem;color:var(--mute);font-weight:500}
+.rank{font-size:clamp(1.7rem,6vw,2.4rem);font-weight:700;color:var(--chili);line-height:1.2;margin:0}
+.stat{margin:6px 0 16px}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+button.act{font:inherit;font-weight:700;border:0;border-radius:99px;padding:11px 20px;cursor:pointer;background:#1877F2;color:#fff}
+button.act.alt{background:var(--ink);color:var(--plate)}
+button.act:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.msg{min-height:1.4em;margin:10px 0 0;font-size:.9rem;color:var(--mute)}
+.reset{margin-top:18px;background:none;border:0;color:var(--on-bg);font:inherit;text-decoration:underline;cursor:pointer;opacity:.8}
+</style>
+</head>
+<body>
+<main>
+<h1>তুমি কত খেয়েছ বাংলাদেশ?</h1>
+<p class="sub">নিচের বিখ্যাত খাবারগুলোর মধ্যে যেগুলো খেয়েছ সেগুলোতে ট্যাপ করো। শেষে পাবে তোমার খাদ্যরসিক উপাধি।</p>
+
+<div class="bar" aria-live="polite">
+  <div class="bar-top"><span id="count">০টি খাওয়া হয়েছে</span><span class="pct" id="pct">০%</span></div>
+  <div class="track"><div class="fill" id="fill"></div></div>
+</div>
+
+<ul class="grid" id="grid"></ul>
+
+<section class="result" aria-live="polite">
+  <h2>তোমার উপাধি</h2>
+  <p class="rank" id="rank"></p>
+  <p class="stat" id="stat"></p>
+  <div class="btns">
+    <button class="act" id="fb">ফেসবুকে শেয়ার করো</button>
+    <button class="act alt" id="copy">টেক্সট কপি করো</button>
+  </div>
+  <p class="msg" id="msg"></p>
+</section>
+<button class="reset" id="reset">সব মুছে নতুন করে শুরু করো</button>
+</main>
+
+<script>
+var ITEMS=[
+["বগুড়ার দই","বগুড়া"],["নাটোরের কাঁচাগোল্লা","নাটোর"],["পোড়াবাড়ীর চমচম","টাঙ্গাইল"],
+["কুমিল্লার রসমালাই","কুমিল্লা"],["মুক্তাগাছার মণ্ডা","ময়মনসিংহ"],["বালিশ মিষ্টি","নেত্রকোণা"],
+["সরাইলের ছানামুখী","ব্রাহ্মণবাড়িয়া"],["চট্টগ্রামের মেজবানি মাংস","চট্টগ্রাম"],["কক্সবাজারের শুঁটকি","কক্সবাজার"],
+["কুয়াকাটার সামুদ্রিক কাঁকড়া","পটুয়াখালী"],["শ্রীমঙ্গলের সাত রঙের চা","মৌলভীবাজার"],["সিলেটের আখনি","সিলেট"],
+["শাতকরা দিয়ে গরুর মাংস","সিলেট"],["পুরান ঢাকার বাকরখানি","ঢাকা"],["হাজির বিরিয়ানি","ঢাকা"],
+["কাচ্চি বিরিয়ানি","ঢাকা"],["ফুচকা-চটপটি","ঢাকা"],["খুলনার চুইঝাল মাংস","খুলনা"],
+["খুলনার গলদা চিংড়ি","খুলনা"],["কুষ্টিয়ার তিলের খাজা","কুষ্টিয়া"],["খেজুরের রস ও পাটালি গুড়","যশোর"],
+["চাঁদপুরের ইলিশ","চাঁদপুর"],["ভোলার মহিষের দই","ভোলা"],["রাজশাহীর আম","রাজশাহী"],
+["ক্ষীরশাপাতি আম","চাঁপাইনবাবগঞ্জ"],["কাটারিভোগ চালের পোলাও","দিনাজপুর"],["পঞ্চগড়ের চা","পঞ্চগড়"],
+["বাঁশের চোঙায় পাহাড়ি রান্না","রাঙ্গামাটি-বান্দরবান"],["ভাপা পিঠা ও পুলি পিঠা","সারা দেশ"],["পান্তা-ইলিশ-ভর্তা","সারা দেশ"],
+["বৃষ্টির দিনে খিচুড়ি ও ইলিশ ভাজা","সারা দেশ"],["ঝালমুড়ি","সারা দেশ"]
+];
+var KEY="bd-khabar-v1",done={};
+try{var s=localStorage.getItem(KEY);if(s)done=JSON.parse(s)||{}}catch(e){}
+var $=function(i){return document.getElementById(i)};
+function bn(n){try{return n.toLocaleString("bn-BD")}catch(e){return String(n)}}
+function title(p){
+ if(p===0)return"এখনও খাওয়া শুরুই হয়নি";
+ if(p<20)return"নতুন স্বাদের অভিযাত্রী";
+ if(p<40)return"শখের ভোজনরসিক";
+ if(p<60)return"পাকা খাদ্যরসিক";
+ if(p<80)return"মেজবান মাস্টার";
+ return"বাংলাদেশের খাদ্য সম্রাট";
+}
+function summary(){
+ var n=Object.keys(done).length,p=Math.round(n*100/ITEMS.length);
+ return{n:n,p:p,t:title(p)};
+}
+function shareText(){
+ var r=summary();
+ return"আমি বাংলাদেশের "+bn(r.p)+"% বিখ্যাত খাবার খেয়েছি। আমার উপাধি: "+r.t+"! তুমি কত খেয়েছ?";
+}
+function paint(){
+ var r=summary();
+ $("count").textContent=bn(r.n)+"/"+bn(ITEMS.length)+"টি খাওয়া হয়েছে";
+ $("pct").textContent=bn(r.p)+"%";
+ $("fill").style.width=r.p+"%";
+ $("rank").textContent=r.t;
+ $("stat").textContent=r.n?"তুমি "+bn(ITEMS.length)+"টির মধ্যে "+bn(r.n)+"টি খাবার চেখে দেখেছ।":"কয়েকটা খাবারে ট্যাপ করলেই উপাধি বদলে যাবে।";
+ try{localStorage.setItem(KEY,JSON.stringify(done))}catch(e){}
+}
+var grid=$("grid");
+ITEMS.forEach(function(it,i){
+ var li=document.createElement("li"),b=document.createElement("button");
+ b.className="item";b.type="button";b.setAttribute("aria-pressed",done[i]?"true":"false");
+ b.innerHTML='<span class="dot">✓</span><span><span class="food"></span><span class="place"></span></span>';
+ b.querySelector(".food").textContent=it[0];
+ b.querySelector(".place").textContent=it[1];
+ b.addEventListener("click",function(){
+  if(done[i]){delete done[i]}else{done[i]=1}
+  b.setAttribute("aria-pressed",done[i]?"true":"false");paint();
+ });
+ li.appendChild(b);grid.appendChild(li);
+});
+$("fb").addEventListener("click",function(){
+ var u="https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(location.href)+"&quote="+encodeURIComponent(shareText());
+ try{window.open(u,"_blank","noopener")}catch(e){$("msg").textContent="ফেসবুক খোলা যায়নি। টেক্সট কপি করে পোস্ট করো।"}
+});
+$("copy").addEventListener("click",function(){
+ var t=shareText()+" "+location.href;
+ function ok(){$("msg").textContent="কপি হয়েছে। এবার পোস্টে পেস্ট করো।"}
+ function fail(){$("msg").textContent="কপি করা যায়নি। নিচের লেখাটা হাতে সিলেক্ট করে কপি করো: "+t}
+ try{navigator.clipboard.writeText(t).then(ok,fail)}catch(e){fail()}
+});
+$("reset").addEventListener("click",function(){
+ done={};document.querySelectorAll(".item").forEach(function(b){b.setAttribute("aria-pressed","false")});
+ $("msg").textContent="";paint();
+});
+paint();
+</script>
+</body>
+</html>
