@@ -54,6 +54,12 @@ button.act.alt{background:var(--ink);color:var(--plate)}
 button.act:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .msg{min-height:1.4em;margin:10px 0 0;font-size:.9rem;color:var(--mute)}
 .reset{margin-top:18px;background:none;border:0;color:var(--on-bg);font:inherit;text-decoration:underline;cursor:pointer;opacity:.8}
+
+button.act.gold{background:var(--gold);color:#1B1B18}
+button.act.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.btns.sec{margin-top:14px}
+.btns[hidden]{display:none}
+.preview{display:none;width:100%;max-width:360px;border-radius:14px;margin:16px 0 12px;border:2px solid var(--line)}
 </style>
 </head>
 <body>
@@ -73,8 +79,16 @@ button.act:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
   <p class="rank" id="rank"></p>
   <p class="stat" id="stat"></p>
   <div class="btns">
-    <button class="act" id="fb">ফেসবুকে শেয়ার করো</button>
-    <button class="act alt" id="copy">টেক্সট কপি করো</button>
+    <button class="act gold" id="make">রেজাল্ট ছবি বানাও</button>
+  </div>
+  <img class="preview" id="preview" alt="তোমার রেজাল্ট ছবি">
+  <div class="btns" id="imgbtns" hidden>
+    <button class="act" id="shareimg">ছবি শেয়ার করো</button>
+    <button class="act alt" id="saveimg">ছবি সেভ করো</button>
+  </div>
+  <div class="btns sec">
+    <button class="act ghost" id="fb">শুধু লিংক শেয়ার করো</button>
+    <button class="act ghost" id="copy">টেক্সট কপি করো</button>
   </div>
   <p class="msg" id="msg"></p>
 </section>
@@ -150,6 +164,79 @@ $("copy").addEventListener("click",function(){
 $("reset").addEventListener("click",function(){
  done={};document.querySelectorAll(".item").forEach(function(b){b.setAttribute("aria-pressed","false")});
  $("msg").textContent="";paint();
+});
+var cardBlob=null;
+function msg(t){$("msg").textContent=t}
+function rr(x,a,b,w,h,r,fill){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();x.fillStyle=fill;x.fill()}
+function hideCard(){cardBlob=null;$("preview").style.display="none";$("imgbtns").hidden=true}
+var _paint=paint;paint=function(){_paint();hideCard()};
+function makeCard(){
+ var r=summary();
+ if(!r.n){msg("আগে কয়েকটা খাবারে ট্যাপ করো, তারপর ছবি বানাও।");return}
+ var load=(document.fonts&&document.fonts.load)?Promise.all([document.fonts.load('700 80px "Hind Siliguri"'),document.fonts.load('500 40px "Hind Siliguri"')]).catch(function(){}):Promise.resolve();
+ load.then(function(){
+  var W=1080,H=1350,c=document.createElement("canvas");c.width=W;c.height=H;
+  var x=c.getContext("2d"),F='"Hind Siliguri","Noto Sans Bengali",sans-serif';
+  x.fillStyle="#1F4D36";x.fillRect(0,0,W,H);
+  rr(x,56,56,W-112,H-112,44,"#FFFDF6");
+  x.textAlign="center";x.textBaseline="alphabetic";
+  x.fillStyle="#5E6B60";x.font="500 46px "+F;x.fillText("তুমি কত খেয়েছ বাংলাদেশ?",W/2,170);
+  x.fillStyle="#C8321F";x.font="700 270px "+F;x.fillText(bn(r.p)+"%",W/2,440);
+  var fs=84;x.font="700 "+fs+"px "+F;
+  while(x.measureText(r.t).width>W-240&&fs>40){fs-=2;x.font="700 "+fs+"px "+F}
+  var tw=x.measureText(r.t).width+90;
+  rr(x,(W-tw)/2,500,tw,128,64,"#F4B41A");
+  x.fillStyle="#1B1B18";x.fillText(r.t,W/2,590);
+  x.fillStyle="#1B1B18";x.font="500 48px "+F;
+  x.fillText(bn(ITEMS.length)+"টির মধ্যে "+bn(r.n)+"টি খাবার খেয়েছি",W/2,710);
+  var names=Object.keys(done).map(function(i){return ITEMS[i][0]});
+  x.font="500 36px "+F;
+  var rows=[[]],rw=0,maxW=W-240,gap=14,shown=0,maxRows=4;
+  for(var k=0;k<names.length;k++){
+   var w=x.measureText(names[k]).width+52;
+   if(rw+w>maxW&&rows[rows.length-1].length){if(rows.length>=maxRows)break;rows.push([]);rw=0}
+   rows[rows.length-1].push([names[k],w]);rw+=w+gap;shown++;
+  }
+  if(shown<names.length){
+   var more="আরও "+bn(names.length-shown)+"টি",mw=x.measureText(more).width+52;
+   var last=rows[rows.length-1];var lw=last.reduce(function(a,b){return a+b[1]+gap},0);
+   if(lw+mw>maxW){last.pop()}
+   last.push([more,mw]);
+  }
+  var y=770;
+  rows.forEach(function(row){
+   var tot=row.reduce(function(a,b){return a+b[1]+gap},-gap),cx=(W-tot)/2;
+   row.forEach(function(it){
+    rr(x,cx,y,it[1],68,34,"#F4B41A");
+    x.fillStyle="#1B1B18";x.textAlign="center";x.fillText(it[0],cx+it[1]/2,y+47);
+    cx+=it[1]+gap;
+   });
+   y+=84;
+  });
+  x.textAlign="center";x.fillStyle="#5E6B60";x.font="500 40px "+F;
+  x.fillText("তুমি কয়টা খেয়েছ? নিজে চেষ্টা করো",W/2,1210);
+  x.fillStyle="#C8321F";x.font="700 38px "+F;
+  x.fillText(location.host+location.pathname.replace(/index\.html$/,""),W/2,1262);
+  c.toBlob(function(b){
+   if(!b){msg("ছবি বানানো যায়নি। আবার চেষ্টা করো।");return}
+   cardBlob=b;var pv=$("preview");pv.src=URL.createObjectURL(b);pv.style.display="block";$("imgbtns").hidden=false;
+   msg("ছবি তৈরি। নিচের বোতাম চেপে ফেসবুকে ছেড়ে দাও।");
+  },"image/png");
+ });
+}
+function saveImg(){
+ if(!cardBlob)return;
+ var a=document.createElement("a");a.href=URL.createObjectURL(cardBlob);a.download="bd-khabar-result.png";
+ document.body.appendChild(a);a.click();a.remove();
+}
+$("make").addEventListener("click",makeCard);
+$("saveimg").addEventListener("click",function(){saveImg();msg("ছবি সেভ হয়েছে। ফেসবুকে নতুন পোস্টে ছবিটা দাও।")});
+$("shareimg").addEventListener("click",function(){
+ if(!cardBlob)return;
+ var file=null;try{file=new File([cardBlob],"bd-khabar-result.png",{type:"image/png"})}catch(e){}
+ if(file&&navigator.canShare&&navigator.canShare({files:[file]})){
+  navigator.share({files:[file],text:shareText()+" "+location.href}).catch(function(){});
+ }else{saveImg();msg("ছবি সেভ হয়েছে। ফেসবুকে নতুন পোস্টে ছবিটা দাও।")}
 });
 paint();
 </script>
